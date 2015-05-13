@@ -1,0 +1,8 @@
+#map-canvas {
+	height: 300px;
+	width: 500px;
+}
+.thumbnail {
+	height: 50px;
+	border: 2px solid #fff;
+}
