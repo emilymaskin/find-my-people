@@ -1,8 +1,24 @@
-#map-canvas {
-	height: 300px;
-	width: 500px;
+.wrapper {
+	margin: 0 auto;
+	max-width: 600px;
+	text-align: center;
 }
-.thumbnail {
-	height: 50px;
-	border: 2px solid #fff;
+#map-canvas {
+	height: 400px;
+	width: 100%;
+}
+#search_term {
+	width: 100%;
+	padding: 10px 20px;
+	margin-top: 10px;
+	border-radius: 5px;
+	border: 1px solid #ccc;
+	outline: none;
+	font-size: 18px;
+}
+h1 {
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 24px;
+	font-weight: 100;
+	margin-top: 40px;
 }
