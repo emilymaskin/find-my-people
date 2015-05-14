@@ -47,15 +47,13 @@ Tag.prototype.getPhotos = function(latitude, longitude, map) {
       if (data.photos.photo.length) {
         var src = data.photos.photo[0].url_sq;
         var contentString = '<img src="' + src + '" alt="">';
-        var latLngObj = new google.maps.LatLng(latitude, longitude);
         var infowindow = new google.maps.InfoWindow({
             content: contentString
         });
 
         var marker = new google.maps.Marker({
-            position: latLngObj,
+            position: new google.maps.LatLng(latitude, longitude),
             map: map,
-            title: 'test'
         });
         google.maps.event.addListener(marker, 'click', function() {
           infowindow.open(map, marker);
@@ -87,7 +85,6 @@ var Map = function(startingLatitude, startingLongitude) {
 Map.prototype.getMapPoints = function(places) {
   var latitude = '';
   var longitude = '';
-  var latLngObj;
 
   for (var i = 0, count = places.length; i < count; i++) {
     latitude = places[i].latitude;
