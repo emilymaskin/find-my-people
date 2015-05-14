@@ -39,7 +39,7 @@ Tag.prototype.getPlaces = function(callback) {
  *
  * @param {number} latitude The latitude to find the photo from
  * @param {number} longitude The longitude to find the photo from
- * @param {function} map The Map instance to add the pictures to
+ * @param {function} map The HeatMap instance to add the pictures to
  */
 Tag.prototype.getPhotos = function(latitude, longitude, map) {
   $.ajax({
@@ -76,13 +76,13 @@ Tag.prototype.getPhotos = function(latitude, longitude, map) {
 };
 
 /**
- * Map constructor
+ * HeatMap constructor
  *
  * @constructor
  * @param {number} latitude The latitude value for the center of the map
  * @param {number} longitude The longitude value for the center of the map
  */
-var Map = function(startingLatitude, startingLongitude) {
+var HeatMap = function(startingLatitude, startingLongitude) {
   this.startingLatitude = startingLatitude;
   this.startingLongitude = startingLongitude;
   this.map = new google.maps.Map(document.getElementById('map-canvas'), {
@@ -99,7 +99,7 @@ var Map = function(startingLatitude, startingLongitude) {
  *
  * @param {array} The list of places returned by the api
  */
-Map.prototype.getMapPoints = function(places) {
+HeatMap.prototype.getMapPoints = function(places) {
   var latitude = '';
   var longitude = '';
 
@@ -117,7 +117,7 @@ Map.prototype.getMapPoints = function(places) {
  * @param {number} latitude The latitude of the point to format
  * @param {number} longitude The longitude of the point to format
  */
-Map.prototype.formatMapPoints = function(latitude, longitude) {
+HeatMap.prototype.formatMapPoints = function(latitude, longitude) {
   var latLngObj = new google.maps.LatLng(latitude, longitude);
   this.latLngObjArray.push(latLngObj);
 };
@@ -128,7 +128,7 @@ Map.prototype.formatMapPoints = function(latitude, longitude) {
  * @param {object} tag The the tag to be mapped
  * @param {boolean} showPhotos If true, shows top photo for each location
  */
-Map.prototype.addHeatLayer = function(tag, showPhotos) {
+HeatMap.prototype.addHeatLayer = function(tag, showPhotos) {
   this.draw = function(places) {
     this.getMapPoints(places);
 
@@ -149,7 +149,7 @@ Map.prototype.addHeatLayer = function(tag, showPhotos) {
  *
  * @param {object} tag The the tag to be mapped
  */
-Map.prototype.addPhotoLayer = function(tag) {
+HeatMap.prototype.addPhotoLayer = function(tag) {
   var photoCount = this.mapPoints.length;
   var latitude = 0;
   var longitude = 0;
@@ -167,7 +167,7 @@ $(document).ready(function() {
   $('form').on('submit', function(e){
     var searchTerm = $(e.currentTarget).find('input').val();
     var tag = new Tag(searchTerm);
-    var map = new Map(40, -95);
+    var map = new HeatMap(40, -95);
 
     e.preventDefault();
     $(e.currentTarget).find('input').blur();
