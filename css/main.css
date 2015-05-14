@@ -22,3 +22,13 @@ h1 {
 	font-weight: 100;
 	margin-top: 40px;
 }
+.message {
+	display: none;
+}
+.message.show {
+	display: block;
+}
+.message .tag_name {
+	font-weight: 800;
+	font-size: 16px;
+}

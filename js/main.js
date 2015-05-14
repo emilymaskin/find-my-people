@@ -5,30 +5,7 @@ var Tag = function(searchTerm) {
   this.searchTerm = searchTerm;
 };
 
-Tag.prototype.getRelated = function() {
-  $.ajax({
-    url: "http://api.flickr.com/services/rest/?jsoncallback=?",
-    dataType: 'jsonp',
-    data: {
-      method: 'flickr.tags.getRelated',
-      api_key: this.apiKey,
-      format: 'json',
-      tag: this.searchTerm,
-    },
-    context: this,
-    success: function(data) {
-      var tagData = data.tags.tag.slice(0, 20);
-      var tagNames = [];
-
-      for (var t in tagData) {
-        tagNames.push(tagData[t]._content);
-      }
-      this.getPlaces(tagNames);
-    }
-  });
-};
-
-Tag.prototype.getPlaces = function(tags) {
+Tag.prototype.getPlaces = function(callback) {
   $.ajax({
     url: "http://api.flickr.com/services/rest/?jsoncallback=?",
     dataType: 'jsonp',
@@ -36,58 +13,120 @@ Tag.prototype.getPlaces = function(tags) {
       method: 'flickr.places.placesForTags',
       api_key: this.apiKey,
       format: 'json',
-      tags: tags.join(','),
+      tags: this.searchTerm,
       place_type_id: '22'
     },
     success: function(data) {
-      var map = new Map();
       var places = data.places.place;
-
-      map.addHeatLayer(places);
+      if (typeof callback !== 'undefined') {
+        callback(places);
+      }
     }
   });
 };
 
-var Map = function() {
-  this.heatmap = null;
-  this.map = new google.maps.Map(document.getElementById('map-canvas'), {
-      zoom: 3,
-      center: new google.maps.LatLng(40, -95),
-      mapTypeId: google.maps.MapTypeId.SATELLITE
+Tag.prototype.getPhotos = function(latitude, longitude, map) {
+  $.ajax({
+    url: "http://api.flickr.com/services/rest/?jsoncallback=?",
+    dataType: 'jsonp',
+    data: {
+      method: 'flickr.photos.search',
+      api_key: this.apiKey,
+      format: 'json',
+      tags: this.searchTerm,
+      per_page: 1,
+      lat: latitude,
+      lon: longitude,
+      extras: 'url_sq'
+    },
+    success: function(data) {
+      var src = data.photos.photo[0].url_sq;
+      var contentString = '<img src="' + src + '" alt="">';
+      var latLngObj = new google.maps.LatLng(latitude, longitude);
+      var infowindow = new google.maps.InfoWindow({
+          content: contentString
+      });
+
+      var marker = new google.maps.Marker({
+          position: latLngObj,
+          map: map,
+          title: 'test'
+      });
+      google.maps.event.addListener(marker, 'click', function() {
+        infowindow.open(map, marker);
+      });
+    }
   });
 };
 
+var Map = function(latitude, longitude) {
+  this.startingLatitude = latitude;
+  this.startingLongitude = longitude;
+  this.map = new google.maps.Map(document.getElementById('map-canvas'), {
+      zoom: 4,
+      center: new google.maps.LatLng(this.startingLatitude, this.startingLongitude),
+      mapTypeId: google.maps.MapTypeId.SATELLITE
+  });
+  this.mapPoints = [];
+  this.latLngObjArray = [];
+};
+
 Map.prototype.getMapPoints = function(places) {
-  var mapPoints = [];
   var latitude = '';
   var longitude = '';
+  var latLngObj;
 
   for (var i = 0, count = places.length; i < count; i++) {
     latitude = places[i].latitude;
     longitude = places[i].longitude;
-    mapPoints.push(new google.maps.LatLng(latitude, longitude));
+    this.mapPoints.push({latitude: latitude, longitude: longitude});
+    this.formatMapPoints(latitude, longitude);
   }
-  return new google.maps.MVCArray(mapPoints);
 };
 
-Map.prototype.addHeatLayer = function(places) {
-  var mapPoints = this.getMapPoints(places);
+Map.prototype.formatMapPoints = function(latitude, longitude) {
+  latLngObj = new google.maps.LatLng(latitude, longitude);
+  this.latLngObjArray.push(latLngObj);
+};
 
-  this.heatmap = new google.maps.visualization.HeatmapLayer({
-    data: mapPoints,
-    radius: 30
+Map.prototype.addHeatLayer = function(tag, showPhotos) {
+  var _this = this;
+  tag.getPlaces(function(places) {
+    _this.getMapPoints(places);
+
+    var heatmap = new google.maps.visualization.HeatmapLayer({
+      data: _this.latLngObjArray,
+      radius: 30
+    });
+    heatmap.setMap(_this.map);
+    if (showPhotos) {
+      _this.addPhotoLayer(tag);
+    }
   });
-  this.heatmap.setMap(this.map);
+};
+
+Map.prototype.addPhotoLayer = function(tag) {
+  var photoCount = this.mapPoints.length;
+  var latitude = 0;
+  var longitude = 0;
+
+  $('.message').addClass('show').find('.tag_name').text(tag.searchTerm);
+
+  for (var i = 0; i < photoCount; i++) {
+    latitude = this.mapPoints[i].latitude;
+    longitude = this.mapPoints[i].longitude;
+    tag.getPhotos(latitude, longitude, this.map);
+  }
 };
 
 $(document).ready(function() {
-  'use strict';
-
   $('form').on('submit', function(e){
     var searchTerm = $(e.currentTarget).find('input').val();
     var tag = new Tag(searchTerm);
+    var map = new Map(40, -95);
 
     e.preventDefault();
-    tag.getRelated();
+    $(e.currentTarget).find('input').blur();
+    map.addHeatLayer(tag, true);
   });
 });
