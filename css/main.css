@@ -1,10 +1,13 @@
+body {
+	background: #f2f2f2;
+}
 .wrapper {
 	margin: 0 auto;
 	max-width: 600px;
 	text-align: center;
 }
 #map-canvas {
-	height: 400px;
+	height: 300px;
 	width: 100%;
 }
 #search_term {
@@ -17,18 +20,20 @@
 	font-size: 18px;
 }
 h1 {
-	font-family: Helvetica, Arial, sans-serif;
-	font-size: 24px;
+	font-size: 28px;
 	font-weight: 100;
 	margin-top: 40px;
+	font-family: Helvetica, Arial, sans-serif;
 }
 .message {
 	display: none;
+	font-size: 18px;
+	letter-spacing: 0.3px;
 }
 .message.show {
 	display: block;
 }
 .message .tag_name {
 	font-weight: 800;
-	font-size: 16px;
+	font-style: italic;
 }

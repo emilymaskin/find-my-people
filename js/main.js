@@ -40,21 +40,23 @@ Tag.prototype.getPhotos = function(latitude, longitude, map) {
       extras: 'url_sq'
     },
     success: function(data) {
-      var src = data.photos.photo[0].url_sq;
-      var contentString = '<img src="' + src + '" alt="">';
-      var latLngObj = new google.maps.LatLng(latitude, longitude);
-      var infowindow = new google.maps.InfoWindow({
-          content: contentString
-      });
+      if (data.photos.photo.length) {
+        var src = data.photos.photo[0].url_sq;
+        var contentString = '<img src="' + src + '" alt="">';
+        var latLngObj = new google.maps.LatLng(latitude, longitude);
+        var infowindow = new google.maps.InfoWindow({
+            content: contentString
+        });
 
-      var marker = new google.maps.Marker({
-          position: latLngObj,
-          map: map,
-          title: 'test'
-      });
-      google.maps.event.addListener(marker, 'click', function() {
-        infowindow.open(map, marker);
-      });
+        var marker = new google.maps.Marker({
+            position: latLngObj,
+            map: map,
+            title: 'test'
+        });
+        google.maps.event.addListener(marker, 'click', function() {
+          infowindow.open(map, marker);
+        });
+      }
     }
   });
 };
@@ -63,7 +65,7 @@ var Map = function(latitude, longitude) {
   this.startingLatitude = latitude;
   this.startingLongitude = longitude;
   this.map = new google.maps.Map(document.getElementById('map-canvas'), {
-      zoom: 4,
+      zoom: 3,
       center: new google.maps.LatLng(this.startingLatitude, this.startingLongitude),
       mapTypeId: google.maps.MapTypeId.SATELLITE
   });
