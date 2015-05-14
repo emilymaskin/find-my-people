@@ -10,6 +10,11 @@ var Tag = function(searchTerm) {
   this.searchTerm = searchTerm;
 };
 
+/**
+ * Get the top places where this tag was used
+ *
+ * @param {function} callback An optional method to call upon completion
+ */
 Tag.prototype.getPlaces = function(callback) {
   $.ajax({
     url: "http://api.flickr.com/services/rest/?jsoncallback=?",
@@ -29,6 +34,13 @@ Tag.prototype.getPlaces = function(callback) {
   });
 };
 
+/**
+ * Get the top photo for a given location
+ *
+ * @param {number} latitude The latitude to find the photo from
+ * @param {number} longitude The longitude to find the photo from
+ * @param {function} map The Map instance to add the pictures to
+ */
 Tag.prototype.getPhotos = function(latitude, longitude, map) {
   $.ajax({
     url: "http://api.flickr.com/services/rest/?jsoncallback=?",
@@ -82,6 +94,11 @@ var Map = function(startingLatitude, startingLongitude) {
   this.latLngObjArray = [];
 };
 
+/**
+ * Get the coordinates to plot on the map
+ *
+ * @param {array} The list of places returned by the api
+ */
 Map.prototype.getMapPoints = function(places) {
   var latitude = '';
   var longitude = '';
@@ -94,11 +111,23 @@ Map.prototype.getMapPoints = function(places) {
   }
 };
 
+/**
+ * Format the points to be used by google api
+ *
+ * @param {number} latitude The latitude of the point to format
+ * @param {number} longitude The longitude of the point to format
+ */
 Map.prototype.formatMapPoints = function(latitude, longitude) {
   var latLngObj = new google.maps.LatLng(latitude, longitude);
   this.latLngObjArray.push(latLngObj);
 };
 
+/**
+ * Add heat layer to map
+ *
+ * @param {object} tag The the tag to be mapped
+ * @param {boolean} showPhotos If true, shows top photo for each location
+ */
 Map.prototype.addHeatLayer = function(tag, showPhotos) {
   this.draw = function(places) {
     this.getMapPoints(places);
@@ -115,6 +144,11 @@ Map.prototype.addHeatLayer = function(tag, showPhotos) {
   tag.getPlaces(this.draw.bind(this));
 };
 
+/**
+ * Add photos to map
+ *
+ * @param {object} tag The the tag to be mapped
+ */
 Map.prototype.addPhotoLayer = function(tag) {
   var photoCount = this.mapPoints.length;
   var latitude = 0;
