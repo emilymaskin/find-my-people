@@ -1,7 +1,12 @@
 /* global google */
 
+/**
+ * Tag constructor
+ *
+ * @constructor
+ * @param {string} searchTerm The tag to search for
+ */
 var Tag = function(searchTerm) {
-  this.apiKey = 'b3a7fa326b8255e6af7900b7a58841e0';
   this.searchTerm = searchTerm;
 };
 
@@ -11,15 +16,14 @@ Tag.prototype.getPlaces = function(callback) {
     dataType: 'jsonp',
     data: {
       method: 'flickr.places.placesForTags',
-      api_key: this.apiKey,
+      api_key: 'b3a7fa326b8255e6af7900b7a58841e0',
       format: 'json',
       tags: this.searchTerm,
       place_type_id: '22'
     },
     success: function(data) {
-      var places = data.places.place;
       if (typeof callback !== 'undefined') {
-        callback(places);
+        callback(data.places.place);
       }
     }
   });
@@ -31,7 +35,7 @@ Tag.prototype.getPhotos = function(latitude, longitude, map) {
     dataType: 'jsonp',
     data: {
       method: 'flickr.photos.search',
-      api_key: this.apiKey,
+      api_key: 'b3a7fa326b8255e6af7900b7a58841e0',
       format: 'json',
       tags: this.searchTerm,
       per_page: 1,
@@ -61,9 +65,16 @@ Tag.prototype.getPhotos = function(latitude, longitude, map) {
   });
 };
 
-var Map = function(latitude, longitude) {
-  this.startingLatitude = latitude;
-  this.startingLongitude = longitude;
+/**
+ * Map constructor
+ *
+ * @constructor
+ * @param {number} latitude The latitude value for the center of the map
+ * @param {number} longitude The longitude value for the center of the map
+ */
+var Map = function(startingLatitude, startingLongitude) {
+  this.startingLatitude = startingLatitude;
+  this.startingLongitude = startingLongitude;
   this.map = new google.maps.Map(document.getElementById('map-canvas'), {
       zoom: 3,
       center: new google.maps.LatLng(this.startingLatitude, this.startingLongitude),
@@ -87,24 +98,24 @@ Map.prototype.getMapPoints = function(places) {
 };
 
 Map.prototype.formatMapPoints = function(latitude, longitude) {
-  latLngObj = new google.maps.LatLng(latitude, longitude);
+  var latLngObj = new google.maps.LatLng(latitude, longitude);
   this.latLngObjArray.push(latLngObj);
 };
 
 Map.prototype.addHeatLayer = function(tag, showPhotos) {
-  var _this = this;
-  tag.getPlaces(function(places) {
-    _this.getMapPoints(places);
+  this.draw = function(places) {
+    this.getMapPoints(places);
 
     var heatmap = new google.maps.visualization.HeatmapLayer({
-      data: _this.latLngObjArray,
+      data: this.latLngObjArray,
       radius: 30
     });
-    heatmap.setMap(_this.map);
+    heatmap.setMap(this.map);
     if (showPhotos) {
-      _this.addPhotoLayer(tag);
+      this.addPhotoLayer(tag);
     }
-  });
+  };
+  tag.getPlaces(this.draw.bind(this));
 };
 
 Map.prototype.addPhotoLayer = function(tag) {
@@ -129,6 +140,7 @@ $(document).ready(function() {
 
     e.preventDefault();
     $(e.currentTarget).find('input').blur();
+
     map.addHeatLayer(tag, true);
   });
 });
