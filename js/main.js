@@ -17,7 +17,7 @@ var Tag = function(searchTerm) {
  */
 Tag.prototype.getPlaces = function(callback) {
   $.ajax({
-    url: "http://api.flickr.com/services/rest/?jsoncallback=?",
+    url: "https://api.flickr.com/services/rest/?jsoncallback=?",
     dataType: 'jsonp',
     data: {
       method: 'flickr.places.placesForTags',
@@ -43,7 +43,7 @@ Tag.prototype.getPlaces = function(callback) {
  */
 Tag.prototype.getPhotos = function(latitude, longitude, map) {
   $.ajax({
-    url: "http://api.flickr.com/services/rest/?jsoncallback=?",
+    url: "https://api.flickr.com/services/rest/?jsoncallback=?",
     dataType: 'jsonp',
     data: {
       method: 'flickr.photos.search',
